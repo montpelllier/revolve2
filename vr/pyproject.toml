@@ -1,0 +1,36 @@
+[build-system]
+requires = ["poetry-core>=1.6.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "revolve2-vr"
+version = "0.1.0"
+description = "Revolve2: Socket-based communication module with Unity VR project."
+readme = "../README.md"
+authors = [
+    "Donal Shortt",
+    "Rounak Vyas",
+    "Marcelo Felix Audibert",
+    "Yifeng Zhao <y.zhao10@student.vu.nl>",
+    "Jianlong Lei",
+]
+#repository = "https://github.com/ci-group/revolve2"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Typing :: Typed",
+    "Topic :: Scientific/Engineering",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+]
+packages = [{ include = "revolve2" }]
+
+[tool.poetry.dependencies]
+python = "^3.10,<3.12"
+
+
+[tool.poetry.extras]
+dev = []
