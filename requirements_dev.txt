@@ -7,6 +7,7 @@
 -e modular_robot_physical[dev]
 -e modular_robot[dev]
 -e simulation[dev]
+-e vr[dev]
 -r ./codetools/requirements.txt
 -r ./docs/requirements.txt
 -r ./examples/4_example_experiment_setups/4d_robot_bodybrain_ea_database/requirements.txt
