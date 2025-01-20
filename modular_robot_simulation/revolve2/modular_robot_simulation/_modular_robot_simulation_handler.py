@@ -20,9 +20,9 @@ class ModularRobotSimulationHandler(SimulationHandler):
         self._brains = []
 
     def add_robot(
-        self,
-        brain_instance: BrainInstance,
-        body_to_multi_body_system_mapping: BodyToMultiBodySystemMapping,
+            self,
+            brain_instance: BrainInstance,
+            body_to_multi_body_system_mapping: BodyToMultiBodySystemMapping,
     ) -> None:
         """
         Add a brain that will control a robot during simulation.
@@ -33,10 +33,10 @@ class ModularRobotSimulationHandler(SimulationHandler):
         self._brains.append((brain_instance, body_to_multi_body_system_mapping))
 
     def handle(
-        self,
-        simulation_state: SimulationState,
-        simulation_control: ControlInterface,
-        dt: float,
+            self,
+            simulation_state: SimulationState,
+            simulation_control: ControlInterface,
+            dt: float,
     ) -> None:
         """
         Handle a simulation frame.
@@ -57,3 +57,6 @@ class ModularRobotSimulationHandler(SimulationHandler):
             brain_instance.control(
                 dt=dt, sensor_state=sensor_state, control_interface=control
             )
+
+    def get_brains(self):
+        return self._brains

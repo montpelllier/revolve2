@@ -5,6 +5,7 @@ from revolve2.simulation.simulator import BatchParameters, RecordSettings, Simul
 from ._modular_robot_scene import ModularRobotScene
 from ._scene_simulation_state import SceneSimulationState
 from ._to_batch import to_batch
+from revolve2.vr.server import Revolve2Server
 
 
 @overload
@@ -13,6 +14,8 @@ def simulate_scenes(
     batch_parameters: BatchParameters,
     scenes: ModularRobotScene,
     record_settings: RecordSettings | None = None,
+    vr: bool = False,
+    connection: Revolve2Server | None = None,
 ) -> list[SceneSimulationState]:
     """
     Simulate a scene.
@@ -21,6 +24,8 @@ def simulate_scenes(
     :param batch_parameters: The batch parameters to use for simulation.
     :param scenes: Te scene to simulate.
     :param record_settings: The optional record settings to use during simulation.
+    :param vr: If true, the simulation will simulate on Unity VR scene.
+    :param connection: The connection to use.
     :returns: A list of simulation states.
 
     # noqa: DAR202
@@ -34,6 +39,8 @@ def simulate_scenes(
     batch_parameters: BatchParameters,
     scenes: list[ModularRobotScene],
     record_settings: RecordSettings | None = None,
+    vr: bool = False,
+    connection: Revolve2Server | None = None,
 ) -> list[list[SceneSimulationState]]:
     """
     Simulate multiple scenes.
@@ -42,6 +49,8 @@ def simulate_scenes(
     :param batch_parameters: The batch parameters to use for simulation.
     :param scenes: The scenes to simulate.
     :param record_settings: The optional record settings to use during simulation.
+    :param vr: If true, the simulation will simulate on Unity VR scene.
+    :param connection: The connection to use.
     :returns: A list of simulation states for each scene in the provided batch.
 
     # noqa: DAR202
@@ -54,6 +63,8 @@ def simulate_scenes(
     batch_parameters: BatchParameters,
     scenes: ModularRobotScene | list[ModularRobotScene],
     record_settings: RecordSettings | None = None,
+    vr: bool = False,
+    connection: Revolve2Server | None = None,
 ) -> list[SceneSimulationState] | list[list[SceneSimulationState]]:
     """
     Simulate one or more scenes.
@@ -62,6 +73,8 @@ def simulate_scenes(
     :param batch_parameters: The batch parameters to use for simulation.
     :param scenes: One or more scenes to simulate.
     :param record_settings: The optional record settings to use during simulation.
+    :param vr: If true, the simulation will simulate on Unity VR scene.
+    :param connection: The connection to use.
     :returns: A list of simulation states for each scene in the provided batch.
     """
     if isinstance(scenes, ModularRobotScene):
@@ -73,7 +86,7 @@ def simulate_scenes(
     batch, modular_robot_to_multi_body_system_mappings = to_batch(
         scenes, batch_parameters, record_settings
     )
-    simulation_results = simulator.simulate_batch(batch)
+    simulation_results = simulator.simulate_batch(batch, vr=vr, connection=connection)
 
     results = [
         [

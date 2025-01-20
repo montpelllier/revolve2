@@ -1,11 +1,7 @@
-import os
 import socket
 import threading
 import json
-import time
-import subprocess
-from abc import abstractmethod
-from queue import Queue
+
 
 HOST = "127.0.0.1"
 PORT = 5000
@@ -21,11 +17,11 @@ class Revolve2Server:
         self.brains_data = []
 
 
-    def send_mujoco_xml(self, mujoco_xml):
+    def send_mujoco_xml(self, mujoco_xml:str):
         if self.conn:
-            xml_data = {"type": "send_xml", "data": {"xml_data": mujoco_xml}}
+            # xml_data = {"type": "send_xml", "data": {"xml_data": mujoco_xml}}
             print(f"Sending mujoco xml: {mujoco_xml}")
-            self.conn.sendall(mujoco_xml)
+            self.conn.sendall(mujoco_xml.encode('utf-8'))
             # self.conn.send(mujoco_xml)
 
     # 处理客户端请求
@@ -130,7 +126,8 @@ class Revolve2Server:
         # main(self)
 
     def run_experiment_2(self):
-        from revolve2.vr.examples.experiment_foundations.d_evaluate_multiple_interacting_robots.main import main
+        # from revolve2.vr.examples.experiment_foundations.d_evaluate_multiple_interacting_robots.main import main
+        from revolve2.vr.main import main
         main(self)
 
 server = Revolve2Server(HOST, PORT)

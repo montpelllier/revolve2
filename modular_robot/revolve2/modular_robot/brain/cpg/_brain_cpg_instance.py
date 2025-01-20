@@ -1,10 +1,12 @@
+import copy
+
 import numpy as np
 import numpy.typing as npt
 
+from .._brain_instance import BrainInstance
 from ..._modular_robot_control_interface import ModularRobotControlInterface
 from ...body.base import ActiveHinge
 from ...sensor_state import ModularRobotSensorState
-from .._brain_instance import BrainInstance
 
 
 class BrainCpgInstance(BrainInstance):
@@ -21,10 +23,10 @@ class BrainCpgInstance(BrainInstance):
     _output_mapping: list[tuple[int, ActiveHinge]]
 
     def __init__(
-        self,
-        initial_state: npt.NDArray[np.float_],
-        weight_matrix: npt.NDArray[np.float_],
-        output_mapping: list[tuple[int, ActiveHinge]],
+            self,
+            initial_state: npt.NDArray[np.float_],
+            weight_matrix: npt.NDArray[np.float_],
+            output_mapping: list[tuple[int, ActiveHinge]],
     ) -> None:
         """
         Initialize this CPG Brain Instance.
@@ -37,15 +39,20 @@ class BrainCpgInstance(BrainInstance):
         assert weight_matrix.ndim == 2
         assert weight_matrix.shape[0] == weight_matrix.shape[1]
         assert initial_state.shape[0] == weight_matrix.shape[0]
-        assert all([i >= 0 and i < len(initial_state) for i, _ in output_mapping])
+        assert all([0 <= i < len(initial_state) for i, _ in output_mapping])
 
         self._state = initial_state
         self._weight_matrix = weight_matrix
         self._output_mapping = output_mapping
 
+    def data_copy(self):
+        state = copy.deepcopy(self._state)
+        weight_matrix = copy.deepcopy(self._weight_matrix)
+        return state, weight_matrix, self._output_mapping
+
     @staticmethod
     def _rk45(
-        state: npt.NDArray[np.float_], A: npt.NDArray[np.float_], dt: float
+            state: npt.NDArray[np.float_], A: npt.NDArray[np.float_], dt: float
     ) -> npt.NDArray[np.float_]:
         """
         Calculate the next state using the RK45 method.
@@ -67,10 +74,10 @@ class BrainCpgInstance(BrainInstance):
         return np.clip(state, a_min=-1, a_max=1)
 
     def control(
-        self,
-        dt: float,
-        sensor_state: ModularRobotSensorState,
-        control_interface: ModularRobotControlInterface,
+            self,
+            dt: float,
+            sensor_state: ModularRobotSensorState,
+            control_interface: ModularRobotControlInterface,
     ) -> None:
         """
         Control the modular robot.

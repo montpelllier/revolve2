@@ -9,7 +9,7 @@ class SimulationHandler(ABC):
 
     @abstractmethod
     def handle(
-        self, state: SimulationState, control: ControlInterface, dt: float
+            self, state: SimulationState, control: ControlInterface, dt: float
     ) -> None:
         """
         Handle a simulation frame.
@@ -18,4 +18,7 @@ class SimulationHandler(ABC):
         :param control: Interface for setting control targets.
         :param dt: The time since the last call to this function.
         """
+        pass
+
+    def get_brains(self):
         pass

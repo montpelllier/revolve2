@@ -17,3 +17,6 @@ class ControlInterface(ABC):
         :param position: The position target.
         """
         pass
+
+    def get_hinge_joint_mujoco(self, joint_hinge: JointHinge):
+        pass
