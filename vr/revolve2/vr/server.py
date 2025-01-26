@@ -20,7 +20,7 @@ class Revolve2Server:
     def send_mujoco_xml(self, mujoco_xml:str):
         if self.conn:
             # xml_data = {"type": "send_xml", "data": {"xml_data": mujoco_xml}}
-            print(f"Sending mujoco xml: {mujoco_xml}")
+            print(f"Sending mujoco xml: {mujoco_xml[:100]}")
             self.conn.sendall(mujoco_xml.encode('utf-8'))
             # self.conn.send(mujoco_xml)
 
@@ -32,10 +32,10 @@ class Revolve2Server:
         while True:
             try:
                 # 接收消息
-                data = conn.recv(1024).decode('utf-8')
+                data = conn.recv(655360).decode('utf-8')
                 if not data:
                     break
-
+                print("received data:", data[:500])
                 message = json.loads(data)
                 if self.handler:
                     self.handler(message)
@@ -46,14 +46,13 @@ class Revolve2Server:
                 # 根据 type 执行不同逻辑
                 if msg_type == "request_experiment":
                     print("Received experiment request:", msg_data)
-                    # 模拟生成 XML 数据并发送
-                    # xml_data = {"type": "send_xml", "data": {"xml_data": "<mujoco>...</mujoco>"}}
-                    # conn.sendall(json.dumps(xml_data).encode('utf-8'))
+
                     if msg_data['msg'] == 'exp_1':
                         self.run_experiment_1()
                     elif msg_data['msg'] == 'exp_2':
                         self.run_experiment_2()
-                    # self.run_python_code(conn, msg_data['msg'])
+                    elif msg_data['msg'] == 'exp_3':
+                        self.run_experiment_3()
 
                 elif msg_type == "send_experiment_data":
                     print("Received experiment data:", msg_data)
@@ -128,6 +127,10 @@ class Revolve2Server:
     def run_experiment_2(self):
         # from revolve2.vr.examples.experiment_foundations.d_evaluate_multiple_interacting_robots.main import main
         from revolve2.vr.main import main
+        main(self)
+
+    def run_experiment_3(self):
+        from revolve2.vr.examples.robot_brain_cmaes.main import main
         main(self)
 
 server = Revolve2Server(HOST, PORT)

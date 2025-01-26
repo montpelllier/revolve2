@@ -85,7 +85,9 @@ class SurvivorSelector(Selector):
         :returns: The selected population and empty kwargs in this implementation.
         :raises KeyError: If no children got passed.
         """
-        offspring: list[Individual] | None = kwargs.get("children")
+        # offspring: list[Individual] | None = kwargs.get("children")
+        offspring = kwargs.get("children")
+        offspring = offspring.individuals
         if offspring is None:
             raise KeyError("No children passed.")
         original_survivors, offspring_survivors = population_management.steady_state(
@@ -140,11 +142,15 @@ class CrossoverReproducer(Reproducer):
         :returns: The reproduced population.
         :raises KeyError: If the parents are not passed.
         """
-        parents: list[Individual] | None = kwargs.get(
-            "parent_population"
-        )  # We select the population of parents that were passed in KWArgs of the parent selector object.
+        # parents: list[Individual] | None = kwargs.get(
+        #     "parent_population"
+        # )  # We select the population of parents that were passed in KWArgs of the parent selector object.
+        parents = kwargs.get("parent_population")
+        parents = parents.individuals
         if parents is None:
             raise KeyError("No children passed.")
+        print(type(parents))
+
         offspring = [
             Genotype.crossover(
                 parents[parent1_i].genotype,

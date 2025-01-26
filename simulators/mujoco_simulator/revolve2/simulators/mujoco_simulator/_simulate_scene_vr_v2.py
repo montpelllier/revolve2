@@ -35,6 +35,7 @@ def simulate_scene_vr_v2(
         viewer_type: ViewerType,
         render_backend: RenderBackend = RenderBackend.EGL,
         connection: Revolve2Server | None = None,
+        onResult = None
 ) -> list[SimulationState]:
     """
     Simulate a scene.
@@ -62,6 +63,8 @@ def simulate_scene_vr_v2(
     model, mapping, xml = scene_to_xml(
         scene, simulation_timestep, cast_shadows=cast_shadows, fast_sim=fast_sim
     )
+    data = mujoco.MjData(model)
+
 
     if xml and connection:
         def handle_message(message):
@@ -72,7 +75,6 @@ def simulate_scene_vr_v2(
             msg_data = message.get("data")
 
             if msg_type == "start_simulation":
-                data = mujoco.MjData(model)
 
                 control_interface = ControlInterfaceVRImpl(
                     connection=connection, abstraction_to_mujoco_mapping=mapping
@@ -101,39 +103,69 @@ def simulate_scene_vr_v2(
                     if time >= last_control_time + control_step:
                         last_control_time = math.floor(time / control_step) * control_step
 
-                        simulation_state = SimulationStateImpl(
+                        sim_state = SimulationStateImpl(
                             data=data, abstraction_to_mujoco_mapping=mapping, camera_views=images
                         )
-                        scene.handler.handle(simulation_state, control_interface, control_step)
-                        control_states.append(simulation_state)
+                        scene.handler.handle(sim_state, control_interface, control_step)
+                        control_states.append(sim_state)
                         connection.send_control_commands()
 
             elif msg_type == "send_brains":
-                data = mujoco.MjData(model)
 
                 control_interface = ControlInterfaceVRImpl(
                     connection=connection, abstraction_to_mujoco_mapping=mapping
                 )
 
                 scene_brains = scene.handler.get_brains()
+                print('converting brain to vr brain')
                 for brain_instance, body_to_multi_body_system_mapping in scene_brains:
-                    print('converting brain to vr brain')
                     brain_data = create_with_brain_instance(brain_instance, control_interface,
                                                             body_to_multi_body_system_mapping)
 
                     connection.append_brain_data(brain_data)
 
-                # x = [[0.1, 0.2,],[0.1,0.0]]
-                # data.xpos = x
-
-                # return
                 connection.send_brains()
+            elif msg_type == "simulation_results":
+
+                # print("xpos:",len(data.xpos), data.xpos)
+                # print("xquat:", len(data.xquat), data.xquat)
+                # print("qpos:", len(data.qpos), data.qpos)
+                # print("sensordata:", len(data.sensordata), data.sensordata)
+                print(type(data.xpos))
+                print(type(data.xquat))
+                print(type(data.qpos))
+                print(type(data.sensordata))
+                # nbody = model.nbody
+                # nq = model.nq
+                # nsensordata = model.nsensordata
+
+
+                sim_states = message.get("data", {}).get("simulation_states", [])
+
+
+                result: list[SimulationState] = (
+                    []
+                )
+                for sim_state in sim_states:
+                    data.xpos = np.reshape(sim_state['xpos'], (-1, 3))
+                    print("xpos")
+                    data.xquat = np.reshape(sim_state['xquat'], (-1, 4))
+                    print("xquat")
+                    data.qpos = np.array(sim_state['qpos'])
+                    print("qpos")
+                    data.sensordata = np.array(sim_state['sensordata'])
+                    print("sensordata")
+
+                    result.append(SimulationStateImpl(
+                        data=data, abstraction_to_mujoco_mapping=mapping, camera_views=None
+                    ))
+                connection.handler = None
+                if onResult:
+                    onResult([result])
 
         connection.handler = handle_message
         connection.send_mujoco_xml(xml)
         return []
-
-    data = mujoco.MjData(model)
 
     """Define a control interface for the mujoco simulation (used to control robots)."""
     control_interface = ControlInterfaceImpl(
@@ -317,7 +349,7 @@ def create_with_brain_instance(
             (state_index, active_hinge.range, hinge_joint_mujoco)
         )
     brain_data = data_to_dict(state, weight_matrix, output_mapping)
-    print(brain_data)
+    # print(brain_data)
     # brain_vr_instance = BrainCpgVr(initial_state=state, weight_matrix=weight_matrix, output_mapping=output_mapping)
 
     return brain_data

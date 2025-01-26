@@ -63,7 +63,7 @@ class LocalSimulator(Simulator):
             else viewer_type
         )
 
-    def simulate_batch(self, batch: Batch, vr: bool, connection: Revolve2Server | None = None) -> list[
+    def simulate_batch(self, batch: Batch, vr: bool, connection: Revolve2Server | None = None, onResultHandler = None) -> list[
         list[SimulationState]]:
         """
         Simulate the provided batch by simulating each contained scene.
@@ -71,6 +71,7 @@ class LocalSimulator(Simulator):
         :param batch: The batch to run.
         :param vr:
         :param connection:
+        :param onResultHandler:
         :returns: List of simulation states in ascending order of time.
         :raises Exception: If manual control is selected, but headless is enabled.
         """
@@ -138,6 +139,7 @@ class LocalSimulator(Simulator):
                             self._fast_sim,
                             self._viewer_type,
                             connection=connection,
+                            onResult=onResultHandler,
                         )
                         for scene_index, scene in enumerate(batch.scenes)
                     ]
@@ -178,6 +180,7 @@ class LocalSimulator(Simulator):
                         self._fast_sim,
                         self._viewer_type,
                         connection=connection,
+                        onResult=onResultHandler,
                     )
                     for scene_index, scene in enumerate(batch.scenes)
                 ]

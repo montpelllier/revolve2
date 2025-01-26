@@ -16,6 +16,7 @@ def simulate_scenes(
     record_settings: RecordSettings | None = None,
     vr: bool = False,
     connection: Revolve2Server | None = None,
+    onResultHandler = None,
 ) -> list[SceneSimulationState]:
     """
     Simulate a scene.
@@ -41,6 +42,7 @@ def simulate_scenes(
     record_settings: RecordSettings | None = None,
     vr: bool = False,
     connection: Revolve2Server | None = None,
+    onResultHandler = None,
 ) -> list[list[SceneSimulationState]]:
     """
     Simulate multiple scenes.
@@ -65,6 +67,7 @@ def simulate_scenes(
     record_settings: RecordSettings | None = None,
     vr: bool = False,
     connection: Revolve2Server | None = None,
+    onResultHandler = None,
 ) -> list[SceneSimulationState] | list[list[SceneSimulationState]]:
     """
     Simulate one or more scenes.
@@ -75,6 +78,7 @@ def simulate_scenes(
     :param record_settings: The optional record settings to use during simulation.
     :param vr: If true, the simulation will simulate on Unity VR scene.
     :param connection: The connection to use.
+    :param onResultHandler: The callback to execute when a result is received.
     :returns: A list of simulation states for each scene in the provided batch.
     """
     if isinstance(scenes, ModularRobotScene):
@@ -86,7 +90,25 @@ def simulate_scenes(
     batch, modular_robot_to_multi_body_system_mappings = to_batch(
         scenes, batch_parameters, record_settings
     )
-    simulation_results = simulator.simulate_batch(batch, vr=vr, connection=connection)
+
+    def resultHandler(handler_states):
+        handler_results = [
+            [
+                SceneSimulationState(state, modular_robot_to_multi_body_system_mapping)
+                for state in simulation_result
+            ]
+            for simulation_result, modular_robot_to_multi_body_system_mapping in zip(
+                handler_states, modular_robot_to_multi_body_system_mappings, strict=True
+            )
+        ]
+        if onResultHandler is not None:
+            if return_scalar_result:
+                onResultHandler(handler_results[0])
+            else:
+                onResultHandler(handler_results)
+
+    simulation_results = simulator.simulate_batch(batch, vr=vr, connection=connection, onResultHandler=resultHandler)
+    # simulation_results = simulator.simulate_batch(batch, vr=vr, connection=connection)
 
     results = [
         [
