@@ -12,7 +12,7 @@ authors = [
     "Rounak Vyas",
     "Marcelo Felix Audibert",
     "Yifeng Zhao <y.zhao10@student.vu.nl>",
-    "Jianlong Lei",
+    "Jianlong Lei <j.lei@student.vu.nl>",
 ]
 #repository = "https://github.com/ci-group/revolve2"
 classifiers = [

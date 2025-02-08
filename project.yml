@@ -7,6 +7,7 @@ platform_independent_packages:
   - modular_robot_simulation
   - simulation
   - simulators/mujoco_simulator
+  - vr
 platform_dependent_packages:
   - standards
 examples:
